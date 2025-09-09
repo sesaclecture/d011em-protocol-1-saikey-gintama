@@ -25,8 +25,12 @@ def blink_led() -> None:
     - 종료시 LED는 OFF 상태
     """
     # TODO: blink_led 구현
-
-    raise NotImplementedError
+    led = LED(18)
+    try:
+        for _ in range(10): 
+            led.on() ; time.sleep(0.001)
+            led.off() ; time.sleep(0.001)
+    finally: led.off()
 
 
 def check_to_input_button() -> None:
@@ -39,8 +43,19 @@ def check_to_input_button() -> None:
     - 버튼 입력을 10번 받았으면 종료.
     """
     # TODO: check_to_input_button 구현
+    btn = Button(18, pull_up=True)
 
-    raise NotImplementedError
+    pressed_count = 0
+    prev = btn.is_pressed  # 현재 상태
+    while pressed_count < 10:
+        cur = btn.is_pressed 
+        if cur != prev:
+            if cur: print("pressed"); pressed_count += 1
+            else: print("released")
+            prev = cur
+        time.sleep(0.001)
+        
+
 
 
 def blink_led_through_button() -> None:
@@ -54,9 +69,16 @@ def blink_led_through_button() -> None:
     """
     # TODO: blink_led_through_button 구현
     led = LED(12)
-    led.on()
+    btn = Button(13, pull_up=True)
 
-    raise NotImplementedError
+    try: 
+        for i in range(10): 
+            if btn.is_pressed: 
+                i += 1
+                led.on() ; time.sleep(0.5) ; led.off()
+    finally:
+        led.off()
+
 
 
 def transmit_msg() -> None:
@@ -66,9 +88,17 @@ def transmit_msg() -> None:
     - 개행을 붙여 전송 (수신/테스트 편의)
     """
     # TODO: blink_led_through_button 구현
+    ser = Serial("/dev/ttyAMA3", baudrate=115200, timeout=1.0)
 
-    raise NotImplementedError
-
+    try:
+        i=0
+        for i in range(10):
+            msg = f"Hello World! {i}\n" 
+            ser.write(msg.encode())
+            i += 1
+    finally: 
+        ser.close()
+        
 
 def receive_msg() -> None:
     """
@@ -76,8 +106,17 @@ def receive_msg() -> None:
     - 'exit' (대소문자 무시) 라인을 수신하면 함수 종료
     """
     # TODO: blink_led_through_button 구현
+    ser = Serial("/dev/ttyAMA3", baudrate=115200, timeout=1.0)
 
-    raise NotImplementedError
+    try:
+        while True:
+            raw = ser.read(4)
+            line = raw.decode().rstrip("\n")
+            print(line)
+            if line.lower() == "exit": 
+                break
+    finally:
+        ser.close()
 
 
 if __name__ == "__main__":
